@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Browser Code Editor</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="editors">
+        <div class="editor html-editor">
+          <label>HTML</label>
+          <textarea id="html" placeholder="Write HTML here..."></textarea>
+        </div>
+        <div class="editor css-editor">
+          <label>CSS</label>
+          <textarea id="css" placeholder="Write CSS here..."></textarea>
+        </div>
+        <div class="editor js-editor">
+          <label>JS</label>
+          <textarea id="js" placeholder="Write JS here..."></textarea>
+        </div>
+      </div>
+      <div class="preview">
+        <iframe id="preview"></iframe>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
