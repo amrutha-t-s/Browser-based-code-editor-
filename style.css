@@ -4,8 +4,9 @@
   box-sizing: border-box;
 }
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Consolas", "Monaco", monospace;
   background: #f0f0f0;
+  height: 100vh;
 }
 .container {
   display: flex;
@@ -20,31 +21,56 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border: 1px solid #ccc;
+  border-right: 1px solid #ddd;
+}
+.editor:last-child {
+  border-right: none;
 }
 label {
-  padding: 10px;
-  background: #333;
+  padding: 10px 15px;
+  background: #2d3748;
   color: white;
+  font-weight: bold;
+  font-size: 13px;
 }
 textarea {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 0;
+  font-family: inherit;
   font-size: 14px;
-  resize: vertical;
 }
-#css,
-#js {
-  font-family: monospace;
+.CodeMirror {
+  height: 100%;
+  font-size: 14px;
+}
+.CodeMirror pre {
+  padding-left: 7px;
+  line-height: 1.45;
+}
+.editor .CodeMirror {
+  height: calc(100% - 50px);
 }
 .preview {
   height: 40vh;
-  border: none;
+  border-top: 2px solid #2d3748;
   background: white;
 }
 @media (max-width: 768px) {
   .editors {
     flex-direction: column;
   }
+  .preview {
+    height: 30vh;
+  }
+}
+/* Dark mode ready */
+body.dark {
+  background: #1a1a1a;
+}
+body.dark .editor {
+  border-color: #444;
+}
+body.dark label {
+  background: #1a202c;
 }

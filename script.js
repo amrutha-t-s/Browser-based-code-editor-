@@ -1,35 +1,94 @@
-const html = document.getElementById("html");
-const css = document.getElementById("css");
-const js = document.getElementById("js");
+let htmlEditor, cssEditor, jsEditor;
 const preview = document.getElementById("preview");
 
 function init() {
-  html.value = localStorage.getItem("html") || "";
-  css.value = localStorage.getItem("css") || "body { margin: 20px; }";
-  js.value = localStorage.getItem("js") || "";
-  run();
+  // Initialize syntax-highlighted editors
+  htmlEditor = CodeMirror.fromTextArea(document.getElementById("html"), {
+    mode: "htmlmixed",
+    lineNumbers: true,
+    theme: "default",
+    tabSize: 2,
+    indentWithTabs: false,
+    lineWrapping: true,
+    autofocus: true,
+  });
+
+  cssEditor = CodeMirror.fromTextArea(document.getElementById("css"), {
+    mode: "css",
+    lineNumbers: true,
+    theme: "default",
+    tabSize: 2,
+    lineWrapping: true,
+  });
+
+  jsEditor = CodeMirror.fromTextArea(document.getElementById("js"), {
+    mode: "javascript",
+    lineNumbers: true,
+    theme: "default",
+    tabSize: 2,
+    lineWrapping: true,
+  });
+
+  // Load from localStorage with defaults
+  htmlEditor.setValue(localStorage.getItem("html") || "<h1>Hello World!</h1>");
+  cssEditor.setValue(
+    localStorage.getItem("css") ||
+      "body {\n  margin: 20px;\n  font-family: Arial;\n}\nh1 { color: #3498db; }",
+  );
+  jsEditor.setValue(localStorage.getItem("js") || "");
+
+  // Live updates
+  attachListeners();
+  run(); // Initial render
+}
+
+function attachListeners() {
+  const debounce = (fn, ms) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), ms);
+    };
+  };
+
+  const update = debounce(run, 300);
+
+  htmlEditor.on("change", update);
+  cssEditor.on("change", update);
+  jsEditor.on("change", update);
 }
 
 function run() {
-  const fullCode = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>${css.value}</style>
-        </head>
-        <body>${html.value}
-            <script>${js.value}<\/script>
-        <\/body>
-        <\/html>
-    `;
+  const htmlCode = htmlEditor.getValue();
+  const cssCode = cssEditor.getValue();
+  const jsCode = jsEditor.getValue();
+
+  const fullCode = `<!DOCTYPE html>
+<html>
+<head>
+    <style>${cssCode}</style>
+</head>
+<body>${htmlCode}
+    <script>${jsCode}<\/script>
+</body>
+</html>`;
+
   preview.srcdoc = fullCode;
-  localStorage.setItem("html", html.value);
-  localStorage.setItem("css", css.value);
-  localStorage.setItem("js", js.value);
+
+  // Auto-save
+  localStorage.setItem("html", htmlCode);
+  localStorage.setItem("css", cssCode);
+  localStorage.setItem("js", jsCode);
 }
 
-html.addEventListener("input", run);
-css.addEventListener("input", run);
-js.addEventListener("input", run);
+// Keyboard shortcuts (Ctrl+S = Run, Shift+Enter = Newline)
+document.addEventListener("keydown", (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === "s") {
+      e.preventDefault();
+      run();
+    }
+  }
+});
 
 init();
