@@ -37,9 +37,49 @@ function init() {
   );
   jsEditor.setValue(localStorage.getItem("js") || "");
 
+  // NEW: Button event listeners
+  document.getElementById("download").onclick = downloadProject;
+  document.getElementById("clear").onclick = clearAll;
+
   // Live updates
   attachListeners();
   run(); // Initial render
+}
+
+// NEW: Download Project as JSON
+function downloadProject() {
+  const project = {
+    name: "code-editor-project",
+    html: htmlEditor.getValue(),
+    css: cssEditor.getValue(),
+    js: jsEditor.getValue(),
+    timestamp: new Date().toISOString(),
+  };
+
+  const blob = new Blob([JSON.stringify(project, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${project.name}-${new Date().getTime()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  console.log("✅ Project downloaded!");
+}
+
+// NEW: Clear All (with confirmation)
+function clearAll() {
+  if (confirm("Clear all code and localStorage? This cannot be undone.")) {
+    htmlEditor.setValue("");
+    cssEditor.setValue("");
+    jsEditor.setValue("");
+    localStorage.clear();
+    run();
+    console.log("🗑️ Cleared everything!");
+  }
 }
 
 function attachListeners() {
@@ -81,7 +121,7 @@ function run() {
   localStorage.setItem("js", jsCode);
 }
 
-// Keyboard shortcuts (Ctrl+S = Run, Shift+Enter = Newline)
+// Keyboard shortcuts
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey || e.metaKey) {
     if (e.key === "s") {

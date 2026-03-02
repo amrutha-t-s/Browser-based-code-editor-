@@ -10,7 +10,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css"
     />
-
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -29,12 +28,19 @@
           <textarea id="js" placeholder="Write JS here..."></textarea>
         </div>
       </div>
+
+      <!-- Toolbar with Download Button -->
+      <div class="toolbar">
+        <button id="download">💾 Download Project</button>
+        <button id="clear">🗑️ Clear All</button>
+      </div>
+
       <div class="preview">
         <iframe id="preview"></iframe>
       </div>
     </div>
 
-    <!-- CodeMirror Scripts (load AFTER HTML for performance) -->
+    <!-- CodeMirror Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
