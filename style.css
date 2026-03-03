@@ -52,7 +52,6 @@ textarea {
   height: calc(100% - 50px);
 }
 
-/* NEW TOOLBAR STYLES */
 .toolbar {
   padding: 12px 15px;
   background: #2d3748;
@@ -76,20 +75,77 @@ textarea {
   transform: translateY(-1px);
 }
 
-.preview {
-  height: 35vh;
-  border-top: 2px solid #2d3748;
+/* NEW: Tab Styles */
+.bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.tabs {
+  display: flex;
+  background: #2d3748;
+  border-bottom: 1px solid #4a5568;
+}
+.tab {
+  background: none;
+  border: none;
+  padding: 12px 20px;
+  color: #cbd5e0;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.tab.active,
+.tab:hover {
+  background: #4a5568;
+  color: white;
+}
+.tab-content {
+  flex: 1;
+  display: none;
+  overflow: auto;
+}
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+}
+#preview-frame {
+  flex: 1;
+  border: none;
   background: white;
+}
+#console-output {
+  flex: 1;
+  background: #1a1a1a;
+  color: #00ff00;
+  padding: 15px;
+  font-family: "Consolas", monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+.clear-console {
+  background: #4a5568;
+  color: #00ff00;
+  border: 1px solid #666;
+  padding: 8px 16px;
+  margin: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+.clear-console:hover {
+  background: #666;
 }
 
 @media (max-width: 768px) {
   .editors {
     flex-direction: column;
   }
-  .preview {
-    height: 30vh;
-  }
-  .toolbar {
+  .tabs {
     flex-wrap: wrap;
   }
 }

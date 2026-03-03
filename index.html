@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pro Code Editor - Syntax Highlighting</title>
+    <title>Pro Code Editor - Console + Download</title>
 
     <!-- CodeMirror CDN -->
     <link
@@ -29,14 +29,27 @@
         </div>
       </div>
 
-      <!-- Toolbar with Download Button -->
+      <!-- Toolbar -->
       <div class="toolbar">
         <button id="download">💾 Download Project</button>
         <button id="clear">🗑️ Clear All</button>
       </div>
 
-      <div class="preview">
-        <iframe id="preview"></iframe>
+      <!-- NEW: Tabbed Preview/Console -->
+      <div class="bottom">
+        <div class="tabs">
+          <button class="tab active" data-tab="preview">👁️ Preview</button>
+          <button class="tab" data-tab="console">📋 Console</button>
+        </div>
+        <div id="preview" class="tab-content active">
+          <iframe id="preview-frame"></iframe>
+        </div>
+        <div id="console" class="tab-content">
+          <div id="console-output"></div>
+          <button id="clear-console" class="clear-console">
+            Clear Console
+          </button>
+        </div>
       </div>
     </div>
 

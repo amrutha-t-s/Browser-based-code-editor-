@@ -1,5 +1,7 @@
 let htmlEditor, cssEditor, jsEditor;
-const preview = document.getElementById("preview");
+let previewFrame = document.getElementById("preview-frame");
+let consoleOutput = document.getElementById("console-output");
+let currentTab = "preview";
 
 function init() {
   // Initialize syntax-highlighted editors
@@ -30,56 +32,45 @@ function init() {
   });
 
   // Load from localStorage with defaults
-  htmlEditor.setValue(localStorage.getItem("html") || "<h1>Hello World!</h1>");
+  htmlEditor.setValue(
+    localStorage.getItem("html") ||
+      '<h1>Hello World!</h1><button onclick="testConsole()">Test Console</button>',
+  );
   cssEditor.setValue(
     localStorage.getItem("css") ||
-      "body {\n  margin: 20px;\n  font-family: Arial;\n}\nh1 { color: #3498db; }",
+      "body {\n  margin: 20px;\n  font-family: Arial;\n}\nh1 { color: #3498db; }\nbutton { padding: 10px; background: #e74c3c; color: white; border: none; }",
   );
-  jsEditor.setValue(localStorage.getItem("js") || "");
+  jsEditor.setValue(
+    localStorage.getItem("js") ||
+      'function testConsole() {\n  console.log("✅ Console works!");\n  console.error("❌ Error test");\n  console.warn("⚠️ Warning test");\n}',
+  );
 
-  // NEW: Button event listeners
+  // Event listeners
   document.getElementById("download").onclick = downloadProject;
   document.getElementById("clear").onclick = clearAll;
+  document.getElementById("clear-console").onclick = () =>
+    (consoleOutput.textContent = "");
+
+  // Tab switching
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.onclick = () => switchTab(tab.dataset.tab);
+  });
 
   // Live updates
   attachListeners();
   run(); // Initial render
 }
 
-// NEW: Download Project as JSON
-function downloadProject() {
-  const project = {
-    name: "code-editor-project",
-    html: htmlEditor.getValue(),
-    css: cssEditor.getValue(),
-    js: jsEditor.getValue(),
-    timestamp: new Date().toISOString(),
-  };
-
-  const blob = new Blob([JSON.stringify(project, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${project.name}-${new Date().getTime()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  console.log("✅ Project downloaded!");
-}
-
-// NEW: Clear All (with confirmation)
-function clearAll() {
-  if (confirm("Clear all code and localStorage? This cannot be undone.")) {
-    htmlEditor.setValue("");
-    cssEditor.setValue("");
-    jsEditor.setValue("");
-    localStorage.clear();
-    run();
-    console.log("🗑️ Cleared everything!");
-  }
+function switchTab(tabName) {
+  currentTab = tabName;
+  document
+    .querySelectorAll(".tab-content")
+    .forEach((c) => c.classList.remove("active"));
+  document
+    .querySelectorAll(".tab")
+    .forEach((t) => t.classList.remove("active"));
+  document.getElementById(tabName).classList.add("active");
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
 }
 
 function attachListeners() {
@@ -109,16 +100,87 @@ function run() {
     <style>${cssCode}</style>
 </head>
 <body>${htmlCode}
-    <script>${jsCode}<\/script>
+    <script>
+        // Override console methods to capture output
+        const consoleLog = [];
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = (...args) => {
+            consoleLog.push(['LOG', new Date().toLocaleTimeString(), ...args]);
+            originalLog(...args);
+        };
+        console.error = (...args) => {
+            consoleLog.push(['ERROR', new Date().toLocaleTimeString(), ...args]);
+            originalError(...args);
+        };
+        console.warn = (...args) => {
+            consoleLog.push(['WARN', new Date().toLocaleTimeString(), ...args]);
+            originalWarn(...args);
+        };
+        
+        ${jsCode}
+        
+        // Send console to parent
+        window.parent.postMessage({type: 'console', logs: consoleLog}, '*');
+    <\/script>
 </body>
 </html>`;
 
-  preview.srcdoc = fullCode;
+  previewFrame.srcdoc = fullCode;
 
   // Auto-save
   localStorage.setItem("html", htmlCode);
   localStorage.setItem("css", cssCode);
   localStorage.setItem("js", jsCode);
+}
+
+// Listen for console messages from iframe
+window.addEventListener("message", (e) => {
+  if (e.data.type === "console" && currentTab === "console") {
+    const logs = e.data.logs;
+    consoleOutput.textContent = logs
+      .map((log) => {
+        const [type, time, ...msg] = log;
+        return `[${time}] ${type}: ${msg.join(" ")}`;
+      })
+      .join("\\n");
+    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+  }
+});
+
+// Download and Clear functions (unchanged)
+function downloadProject() {
+  const project = {
+    name: "code-editor-project",
+    html: htmlEditor.getValue(),
+    css: cssEditor.getValue(),
+    js: jsEditor.getValue(),
+    timestamp: new Date().toISOString(),
+  };
+
+  const blob = new Blob([JSON.stringify(project, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${project.name}-${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function clearAll() {
+  if (confirm("Clear all code and localStorage?")) {
+    htmlEditor.setValue("");
+    cssEditor.setValue("");
+    jsEditor.setValue("");
+    localStorage.clear();
+    run();
+  }
 }
 
 // Keyboard shortcuts
